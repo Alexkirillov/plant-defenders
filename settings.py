@@ -4,6 +4,7 @@ BACKROUND_LENGHT = 1777
 WALNUT_PHOTO = "images/walnut.png"
 SUNFLOWER_PHOTO = "images/sunflower.png"
 PEA_PHOTO = "images/pea.png"
+BULLET_PHOTO = "images/peaBullet.png"
 Y_POS1 = 100
 Y_POS2 = 420
 Y_POS3 = 770
