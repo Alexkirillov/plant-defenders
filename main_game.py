@@ -7,6 +7,7 @@ from plant_base import Sunflower
 from plant_base import Pea
 from plant_base import PeaBullet
 from random import randint
+import time
 
 
 class Plant_defense:
@@ -46,7 +47,7 @@ class Plant_defense:
         self.plantMove3 = 0
         self.plantPlace3= True
         self.plantPlaced3 = []
-            
+    
 
     def run_game(self):
         manager = pygame_gui.UIManager((1777, 1000), theme_path="quick_start.json")
@@ -56,8 +57,8 @@ class Plant_defense:
         hello_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((600, 400), (300, 150)),
                                              text='start game',
                                              manager=manager)
+        cooldown = time.time()
         while True:
-            
             time_delta = clock.tick(60)/1000.0
             pressed_key = pygame.key.get_pressed()
             for event in pygame.event.get():
@@ -69,14 +70,10 @@ class Plant_defense:
                 manager.process_events(event)
             
             manager.update(time_delta)
+
             self.screen.blit(self.game_backround,(0,0))
             "plant call"
-            
-            self.bullet_group.add(self.pea.shoot_bullet())
-            if self.bullet_group:
-                self.bullet_group.draw(self.screen)
-                self.bullet_group.update()
-                print(len(self.bullet_group))
+           
 
             #summons the plants
             if pressed_key[pygame.K_1] and len(self.sunflowers) == 0 and len(self.walnuts) == 0 and len(self.peas) < 2:
@@ -149,6 +146,17 @@ class Plant_defense:
             
             for pea in self.plantPlaced1:
                 pea.blitme()
+                self.bullet_group.draw(self.screen)
+                self.bullet_group.update()
+                print(pea)
+                
+                if time.time() - cooldown >= 1:
+                    self.bullet_group.add(pea.shoot_bullet())
+                    cooldown = time.time()
+                
+                        
+
+            
 
             manager.draw_ui(window_surface)
             pygame.display.flip()

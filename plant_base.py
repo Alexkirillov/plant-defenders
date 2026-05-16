@@ -105,7 +105,7 @@ class Pea(pygame.sprite.Sprite):
         self.screen.blit(self.image, (self.rect.x,self.rect.y))
 
     def shoot_bullet(self):
-        self.pea_bullet = PeaBullet(200, self.rect.centerx, self.rect.centery, 5)
+        self.pea_bullet = PeaBullet(28, self.rect.centerx+20, self.rect.centery-40, 5)
         return self.pea_bullet  
     
     def update(self):
