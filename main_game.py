@@ -26,15 +26,16 @@ class Plant_defense:
         self.sunflower = Sunflower(self, 120, 150, 770, 620)
         self.pea = Pea(self,120,150, 80,100)
         
-
-        self.bullet_group = pygame.sprite.Group()
+        
+        self.bullet_group_pea = pygame.sprite.Group()
+        
         self.peas = []
         #self.peas.append(self.pea) 
         self.sunflowers = []
         #self.sunflowers.append(self.sunflower)
         self.walnuts = []
         #self.walnuts.append(self.walnut)
-
+        self.bulletCycle = []
 
         self.plantMove1 = 0
         self.plantPlace1 = True
@@ -98,7 +99,11 @@ class Plant_defense:
             #makes the plants placeble
             if pressed_key[pygame.K_p] and self.peas:
                 self.plantPlaced1.append(self.pea)
-                self.peas.clear()
+                self.bullet_group_pea.add(self.pea)
+                self.peas.clear()   
+                
+                
+                
 
             if pressed_key[pygame.K_p] and self.sunflowers:
                 self.plantPlaced2.append(self.sunflower)
@@ -144,17 +149,19 @@ class Plant_defense:
             for sunflower in self.plantPlaced2:
                 sunflower.blitme()
             
-            for pea in self.plantPlaced1:
+            """for pea in self.plantPlaced1:
                 pea.blitme()
-                self.bullet_group.draw(self.screen)
-                self.bullet_group.update()
-                print(pea)
+                if time.time() - cooldown > 1:
+                    pea.shoot_bullet()
+                    
+                    cooldown = time.time()"""
                 
-                if time.time() - cooldown >= 1:
-                    self.bullet_group.add(pea.shoot_bullet())
-                    cooldown = time.time()
-                
-                        
+            self.bullet_group_pea.draw(self.screen)
+            for pea in self.bullet_group_pea:
+                pea.shoot_bullet()
+            
+            
+                    
 
             
 

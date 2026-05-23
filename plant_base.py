@@ -101,12 +101,17 @@ class Pea(pygame.sprite.Sprite):
         self.rect.y = plant_positiony
         self.putPlant = False
         self.movePlant = False
-    def blitme(self,):
+        self.shotBullet = pygame.sprite.Group()
+
+    
+
+    def blitme(self):
         self.screen.blit(self.image, (self.rect.x,self.rect.y))
 
     def shoot_bullet(self):
         self.pea_bullet = PeaBullet(28, self.rect.centerx+20, self.rect.centery-40, 5)
-        return self.pea_bullet  
+        self.shotBullet.add(self.pea_bullet)
+        
     
     def update(self):
         pressed_keys = pygame.key.get_pressed()
@@ -146,3 +151,4 @@ class PeaBullet(pygame.sprite.Sprite):
     
     def update(self):
         self.rect.x += self.speed
+
