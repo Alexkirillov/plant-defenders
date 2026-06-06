@@ -17,7 +17,7 @@ class Plant_defense:
 
         self.screen = pygame.display.set_mode((settings.BACKROUND_LENGHT,settings.BACKROUND_HEIGHT))
         pygame.display.set_caption("Plant defense")
-        self.game_backround = pygame.transform.scale(pygame.image.load(settings.BACKROUND_IMAGE),(settings.BACKROUND_LENGHT,settings.BACKROUND_HEIGHT))
+        self.game_backround = pygame.transform.scale(pygame.image.load(settings.BACKROUND_IMAGE), (settings.BACKROUND_LENGHT,settings.BACKROUND_HEIGHT))
 
         
 
@@ -26,9 +26,9 @@ class Plant_defense:
         self.sunflower = Sunflower(self, 120, 150, 770, 620)
         self.pea = Pea(self,120,150, 80,100)
         
-        
+        self.bullet_group = pygame.sprite.Group()
         self.bullet_group_pea = pygame.sprite.Group()
-        
+        self.bullets = []
         self.peas = []
         #self.peas.append(self.pea) 
         self.sunflowers = []
@@ -48,6 +48,7 @@ class Plant_defense:
         self.plantMove3 = 0
         self.plantPlace3= True
         self.plantPlaced3 = []
+        self.last_shot_time = 0
     
 
     def run_game(self):
@@ -74,12 +75,12 @@ class Plant_defense:
 
             self.screen.blit(self.game_backround,(0,0))
             "plant call"
-           
-
             #summons the plants
             if pressed_key[pygame.K_1] and len(self.sunflowers) == 0 and len(self.walnuts) == 0 and len(self.peas) < 2:
                 self.pea = Pea(self,120,150, 80,100)
+                self.bullet = PeaBullet(28, self.pea.rect.centerx+20, self.pea.rect.centery-40, 5)
                 self.peas.append(self.pea)
+                self.bullets.append(self.bullet)
                 self.plantMove1 = 1
                 self.pea.putPlant = True
 
@@ -95,83 +96,74 @@ class Plant_defense:
                 self.plantMove3 = 1
                 self.walnut.putPlant = True
 
-
-            #makes the plants placeble
-            if pressed_key[pygame.K_p] and self.peas:
-                self.plantPlaced1.append(self.pea)
-                self.bullet_group_pea.add(self.pea)
-                self.peas.clear()   
-                
-                
-                
-
-            if pressed_key[pygame.K_p] and self.sunflowers:
-                self.plantPlaced2.append(self.sunflower)
-                self.sunflowers.clear()
-
-            if pressed_key[pygame.K_p] and self.walnuts:
-                self.plantPlaced3.append(self.walnut)
-                self.walnuts.clear()
-
-
-            #shows the plants that are currently moving 
-            if self.pea.putPlant:
+            if pressed_key[pygame.K_p]:
                 for pea in self.peas:
+                    if not pea.is_placed:
+                        pea.fix_position()
+                        self.plantPlaced1.append(pea)
+                        self.last_shot_time[pea] = time.time()
+                self.peas.clear()
+            
+            for sunflower in self.sunflowers:
+                if not sunflower.is_placed:
+                    sunflower.fix_position()
+                    self.plantPlaced2.append(sunflower)
+            self.sunflowers.clear()
+
+            for walnut in self.walnuts:
+                if not walnut.is_placed:
+                    walnut.fix_position()
+                    self.plantPlaced3.append(walnut)
+            self.walnuts.clear()
+
+            for pea in self.peas:
+                if self.putPlant and not pea.is_placed:
                     pea.blitme()
 
-            if self.sunflower.putPlant:
-                for sunflower in self.sunflowers:
+            for sunflower in self.sunflowers:
+                if self.putPlant and not sunflower.is_placed:
                     sunflower.blitme()
 
-            if self.walnut.putPlant:
-                for walnut in self.walnuts:
+            for walnut in self.walnuts:
+                if self.putPlant and not walnut.is_placed:
                     walnut.blitme()
-
-
-            #updates the plants that are being moved
-            if self.pea.putPlant and self.plantMove1 == 1 and self.plantPlace1:
-                for pea in self.peas:
+            
+            for pea in self.peas:
+                if pea.putPlant and not pea.is_placed:
                     pea.update()
-
-            if self.sunflower.putPlant and self.plantMove2 == 1 and self.plantPlace2:
-                for sunflower in self.sunflowers:
+            
+            for sunflower in self.sunflowers:
+                if sunflower.putPlant and not sunflower.is_placed:
                     sunflower.update()
 
-            if self.walnut.putPlant and self.plantMove3 == 1 and self.plantPlace3:
-                for walnut in self.walnuts:
+            for walnut in self.walnuts:
+                if walnut.putPlant and not walnut.is_placed:
                     walnut.update()
-                    
 
-            #shows already placed plants
             for walnut in self.plantPlaced3:
                 walnut.blitme()
-            
+
             for sunflower in self.plantPlaced2:
                 sunflower.blitme()
             
-            """for pea in self.plantPlaced1:
+            current_time = time.time()
+            for pea in self.plantPlaced1:
                 pea.blitme()
-                if time.time() - cooldown > 1:
-                    pea.shoot_bullet()
-                    
-                    cooldown = time.time()"""
-                
-            self.bullet_group_pea.draw(self.screen)
-            for pea in self.bullet_group_pea:
-                pea.shoot_bullet()
+                bullet = pea.shoot_bullet(current_time)
+                if bullet:
+                    self.bullets.append(bullet)
+                    print("Bullet shot")
             
-            
-                    
-
-            
+            self.bullet_group.update()
+            self.bullet_group.draw(self.screen)
 
             manager.draw_ui(window_surface)
             pygame.display.flip()
-            
-            
 
 if __name__ == '__main__':
     pd = Plant_defense()
     pd.run_game()
+                    
+
 
 
