@@ -12,6 +12,7 @@ class Walnut(pygame.sprite.Sprite):
         self.rect.y = plant_positiony
         self.putPlant = False
         self.is_placed = False
+        self.plantCost = 100
 
     def update(self):
         if not self.is_placed:
@@ -52,6 +53,7 @@ class Sunflower(pygame.sprite.Sprite):
         self.rect.y = plant_positiony
         self.putPlant = False
         self.is_placed = False
+        self.plantCost = 75
     def update(self):
         if not self.is_placed:
             pressed_keys = pygame.key.get_pressed()
@@ -82,6 +84,7 @@ class Sunflower(pygame.sprite.Sprite):
 class Pea(pygame.sprite.Sprite):
     def __init__(self, pd_game, plant_size_width, plant_side_height, plant_postionx, plant_positiony):
         super().__init__()
+        self.pd_game = pd_game
         self.screen = pd_game.screen
         self.image = pygame.transform.scale(pygame.image.load(settings.PEA_PHOTO), (plant_size_width, plant_side_height))
         self.rect = self.image.get_rect()
@@ -89,6 +92,7 @@ class Pea(pygame.sprite.Sprite):
         self.rect.y = plant_positiony
         self.putPlant = False
         self.is_placed = False
+        self.plantCost = 150
         self.last_shot_time = 0
         self.shotBullet = pygame.sprite.Group()
 
@@ -96,6 +100,10 @@ class Pea(pygame.sprite.Sprite):
 
     def blitme(self):
         self.screen.blit(self.image, (self.rect.x,self.rect.y))
+
+    def fix_position(self):
+        self.is_placed = True  
+        putPlant = False    
 
     def shoot_bullet(self,current_time):
         if self.is_placed and current_time - self.last_shot_time > 1:
