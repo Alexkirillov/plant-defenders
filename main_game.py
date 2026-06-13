@@ -7,7 +7,7 @@ from plant_base import Sunflower
 from plant_base import Pea
 from plant_base import PeaBullet
 from random import randint
-import time
+import time 
 
 
 class Plant_defense:
@@ -19,12 +19,12 @@ class Plant_defense:
         pygame.display.set_caption("Plant defense")
         self.game_backround = pygame.transform.scale(pygame.image.load(settings.BACKROUND_IMAGE), (settings.BACKROUND_LENGHT,settings.BACKROUND_HEIGHT))
         self.score_counter = pygame.transform.scale(pygame.image.load(settings.SCORE_COUNTER_PHOTO), (150, 60))
-
+        self.energy = pygame.font.SysFont("Arial", 20)
         
 
         "plants object creation"
         self.walnut = Walnut(self, 120, 150, 380,420)
-        self.sunflower = Sunflower(self, 120, 150, 770, 620)
+        self.sunflower = Sunflower(self, 120, 150, 770, 620, 5)
         self.pea = Pea(self,120,150, 80,100)
         
         self.bullet_group = pygame.sprite.Group()
@@ -50,7 +50,9 @@ class Plant_defense:
         self.plantPlace3= True
         self.plantPlaced3 = []
         self.last_shot_time = {}
-    
+        self.ammo = 0
+        self.time_cooldown = time.time()
+        self.energy_inc = 5
 
     def run_game(self):
         
@@ -62,6 +64,11 @@ class Plant_defense:
                 
             self.screen.blit(self.game_backround,(0,0))
             self.screen.blit(self.score_counter,(5,5))
+            self.screen.blit(self.energy.render(f"energy:{self.ammo}", True, (0, 0, 0)), (12, 25))
+            
+            if time.time() - self.time_cooldown >= 2.5:
+                self.ammo += self.energy_inc
+                self.time_cooldown = time.time()
             "plant call"
             #summons the plants
             if pressed_key[pygame.K_1] and len(self.sunflowers) == 0 and len(self.walnuts) == 0 and len(self.peas) < 2:
@@ -69,9 +76,10 @@ class Plant_defense:
                 self.peas.append(self.pea)
                 self.plantMove1 = 1
                 self.pea.putPlant = True
+            
 
             if pressed_key[pygame.K_2] and len(self.peas) == 0 and len(self.walnuts) == 0 and len(self.sunflowers) < 2 :
-                self.sunflower = Sunflower(self,120,150, 80,100)
+                self.sunflower = Sunflower(self,120,150, 80,100,5)
                 self.sunflowers.append(self.sunflower)
                 self.plantMove2 = 1
                 self.sunflower.putPlant = True
@@ -81,7 +89,7 @@ class Plant_defense:
                 self.walnuts.append(self.walnut)
                 self.plantMove3 = 1
                 self.walnut.putPlant = True
-
+            
             if pressed_key[pygame.K_p]:
                 for pea in self.peas:
                     if not pea.is_placed:
@@ -94,6 +102,8 @@ class Plant_defense:
                     if not sunflower.is_placed:
                         sunflower.fix_position()
                         self.plantPlaced2.append(sunflower)
+                        self.energy_inc += self.sunflower.energy_gen
+                        self.sunflower.energy_gen = 0
                 self.sunflowers.clear()
 
                 for walnut in self.walnuts:

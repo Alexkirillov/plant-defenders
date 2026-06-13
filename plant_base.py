@@ -44,7 +44,7 @@ class Walnut(pygame.sprite.Sprite):
 
 
 class Sunflower(pygame.sprite.Sprite):
-    def __init__(self, pd_game, plant_size_width, plant_side_height, plant_postionx, plant_positiony):
+    def __init__(self, pd_game, plant_size_width, plant_side_height, plant_postionx, plant_positiony,energy_gen):
         super().__init__()
         self.screen = pd_game.screen
         self.image = pygame.transform.scale(pygame.image.load(settings.SUNFLOWER_PHOTO), (plant_size_width, plant_side_height))
@@ -54,6 +54,7 @@ class Sunflower(pygame.sprite.Sprite):
         self.putPlant = False
         self.is_placed = False
         self.plantCost = 75
+        self.energy_gen = 5
     def update(self):
         if not self.is_placed:
             pressed_keys = pygame.key.get_pressed()
