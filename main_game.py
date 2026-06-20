@@ -94,10 +94,11 @@ class Plant_defense:
                 self.plantMove3 = 1
                 self.walnut.putPlant = True
                 self.sprite_group.add(self.walnut)
+
             if pressed_key[pygame.K_p]:
                 for pea in self.peas:
                     sprite_check = pygame.sprite.spritecollide(pea, self.plantPlaced1 + self.plantPlaced2 + self.plantPlaced3, dokill=False)
-                    if not pea.is_placed and len(sprite_check) == 0:
+                    if not pea.is_placed and len(sprite_check) == 0 and self.ammo >= 150:
                         pea.fix_position()
                         self.plantPlaced1.append(pea)
                         self.last_shot_time[pea] = time.time()
@@ -108,7 +109,7 @@ class Plant_defense:
             
                 for sunflower in self.sunflowers:
                     sprite_check = pygame.sprite.spritecollide(sunflower, self.plantPlaced1 + self.plantPlaced2 + self.plantPlaced3, dokill=False)
-                    if not sunflower.is_placed and len(sprite_check) == 0:
+                    if not sunflower.is_placed and len(sprite_check) == 0 and self.ammo >= 50:
                         sunflower.fix_position()
                         self.plantPlaced2.append(sunflower)
                         self.energy_inc += self.sunflower.energy_gen
@@ -120,7 +121,7 @@ class Plant_defense:
 
                 for walnut in self.walnuts:
                     sprite_check = pygame.sprite.spritecollide(walnut, self.plantPlaced1 + self.plantPlaced2 + self.plantPlaced3, dokill=False)
-                    if not walnut.is_placed and len(sprite_check) == 0:
+                    if not walnut.is_placed and len(sprite_check) == 0 and self.ammo >= 100:
                         walnut.fix_position()
                         self.plantPlaced3.append(walnut)
                         self.ammo -= 100
