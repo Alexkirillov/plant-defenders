@@ -13,6 +13,7 @@ class Walnut(pygame.sprite.Sprite):
         self.putPlant = False
         self.is_placed = False
         self.plantCost = 100
+        self.lifes = 1000
 
     def update(self):
         if not self.is_placed:
@@ -55,6 +56,8 @@ class Sunflower(pygame.sprite.Sprite):
         self.is_placed = False
         self.plantCost = 75
         self.energy_gen = 5
+        self.lifes = 100
+
     def update(self):
         if not self.is_placed:
             pressed_keys = pygame.key.get_pressed()
@@ -96,6 +99,7 @@ class Pea(pygame.sprite.Sprite):
         self.plantCost = 150
         self.last_shot_time = 0
         self.shotBullet = pygame.sprite.Group()
+        self.lifes = 200
 
     
 

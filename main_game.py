@@ -7,6 +7,7 @@ import pygame_gui
 from plant_base import Walnut
 from plant_base import Sunflower
 from plant_base import Pea
+from enemy_base import Enemy
 from plant_base import PeaBullet
 from random import randint
 import time 
@@ -28,10 +29,12 @@ class Plant_defense:
         self.walnut = Walnut(self, 120, 150, 380,420)
         self.sunflower = Sunflower(self, 120, 150, 770, 620, 5)
         self.pea = Pea(self,120,150, 80,100)
+        self.enemy = Enemy(self, 120,150,1700,100)
         
         self.bullet_group = pygame.sprite.Group()
         self.bullet_group_pea = pygame.sprite.Group()
         self.sprite_group = pygame.sprite.Group()
+        self.enemy_group = pygame.sprite.Group()
         self.bullets = []
         self.peas = []
         #self.peas.append(self.pea) 
@@ -55,7 +58,10 @@ class Plant_defense:
         self.last_shot_time = {}
         self.ammo = 0
         self.time_cooldown = time.time()
+        self.enemy_spawn_cooldown = time.time()
+        self.enemy_spawn_wait = randint(1,5)
         self.energy_inc = 5
+        
 
     def run_game(self):
         
@@ -64,6 +70,8 @@ class Plant_defense:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
+            
+            self.enemy_offset = randint(-50,50)
                 
             self.screen.blit(self.game_backround,(0,0))
             self.screen.blit(self.score_counter,(5,5))
@@ -94,6 +102,13 @@ class Plant_defense:
                 self.plantMove3 = 1
                 self.walnut.putPlant = True
                 self.sprite_group.add(self.walnut)
+            
+            if time.time() - self.enemy_spawn_cooldown >= self.enemy_spawn_wait:
+                spawn = randint(1,3)
+                enemy = Enemy(self, 120,150,1800,settings.Y_POS1+self.enemy_offset if spawn == 1 else settings.Y_POS2+self.enemy_offset if spawn == 2 else settings.Y_POS3+self.enemy_offset)
+                self.enemy_group.add(enemy)
+                self.enemy_spawn_cooldown = time.time()
+
 
             if pressed_key[pygame.K_p]:
                 for pea in self.peas:
@@ -165,10 +180,23 @@ class Plant_defense:
                 bullet = pea.shoot_bullet(current_time)
                 if bullet:
                     self.bullet_group.add(bullet)
-                    print("Bullet shot")
+
             
+
+
+
+
+
+
+
+
+
+
             self.bullet_group.update()
             self.bullet_group.draw(self.screen)
+            self.enemy_group.update()
+            self.enemy_group.draw(self.screen)
+            
 
             
             pygame.display.flip()
