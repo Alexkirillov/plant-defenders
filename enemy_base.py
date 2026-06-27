@@ -10,13 +10,14 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = enemy_postionx
         self.rect.y = enemy_positiony
-
+        self.lifes = 100
+        self.speed = 0.5
 
 
 
 
     def update(self):
-        self.rect.x -= 0.5
+        self.rect.x -= self.speed
     def blitme(self,):
         self.screen.blit(self.image, (self.rect.x,self.rect.y))
 

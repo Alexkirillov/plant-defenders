@@ -56,7 +56,7 @@ class Plant_defense:
         self.plantPlace3= True
         self.plantPlaced3 = []
         self.last_shot_time = {}
-        self.ammo = 0
+        self.ammo = 200
         self.time_cooldown = time.time()
         self.enemy_spawn_cooldown = time.time()
         self.enemy_spawn_wait = randint(1,5)
@@ -182,20 +182,28 @@ class Plant_defense:
                     self.bullet_group.add(bullet)
 
             
+            for enemy in self.enemy_group:
+                if pygame.sprite.spritecollide(enemy, self.bullet_group, dokill=True):
+                    enemy.lifes -= 25
+                    if enemy.lifes <= 0:
+                        self.enemy_group.remove(enemy)
+            
 
 
-
-
-
-
-
-
+            for enemy in self.enemy_group:
+                if pygame.sprite.spritecollide(enemy, self.plantPlaced1 + self.plantPlaced2 + self.plantPlaced3, dokill=False):
+                    enemy.speed = 0
+                    
+                
+                
 
 
             self.bullet_group.update()
             self.bullet_group.draw(self.screen)
-            self.enemy_group.update()
             self.enemy_group.draw(self.screen)
+            self.enemy_group.update()
+            
+            
             
 
             
