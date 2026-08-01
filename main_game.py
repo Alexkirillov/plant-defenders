@@ -64,29 +64,40 @@ class Plant_defense:
         self.manager = pygame_gui.UIManager((settings.BACKROUND_LENGHT, settings.BACKROUND_HEIGHT))
         self.playing = True
         self.paused = False
+        self.game_started = False
+        self.clock = pygame.time.Clock()
+        self.main_menu()
+
     def main_menu(self):
-        self.play_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(120, 340, 160, 40), text="Play Game", manager=self.manager, object_id="#play_button")
-    
-    def handle_button_events(self): 
+        self.play_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(800, 500, 200, 40),text="play game", manager=self.manager, object_id="#play_button")
+
+    def handle_button_events(self):
         for event in pygame.event.get():
-            if event.type==pygame.QUIT:
+            if event.type == pygame.QUIT:
                 self.playing = False
                 sys.exit()
             self.manager.process_events(event)
 
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == self.play_button:
+                    self.game_started = True
                     self.paused = True
+                    self.play_button.hide()
             
                 
         
 
     def run_game(self):
         while self.playing:
+            time_delta = self.clock.tick(60) / 1000.0
             pressed_key = pygame.key.get_pressed()
             self.handle_button_events()
             self.screen.fill((10, 20, 20))
+            self.manager.update(time_delta)
             self.manager.draw_ui(self.screen)
+
+            if not self.game_started:
+                pygame.display.flip()
 
             if self.paused:
                 self.enemy_offset = randint(-50,50)
