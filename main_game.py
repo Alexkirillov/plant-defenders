@@ -1,4 +1,16 @@
-
+"""self.playing = True
+        self.paused = False
+        self.game_started = False
+        self.clock = pygame.time.Clock()
+        self.play_button = None
+        self.pause_button = None
+        self.pause_buttons = []
+        self.main_menu()
+        self.pause_flag = False
+        self.pause_game_button()
+        if self.pause_button is not None:
+            self.pause_button.hide()
+        self.state = "main_menu"""
 
 import pygame
 import settings
@@ -13,7 +25,7 @@ from random import randint
 import time 
 
 
-class Plant_defense:
+class Plant_defense: 
 
     def __init__(self):
         pygame.init()
@@ -62,38 +74,51 @@ class Plant_defense:
         self.enemy_spawn_wait = randint(1,5)
         self.energy_inc = 5
         self.manager = pygame_gui.UIManager((settings.BACKROUND_LENGHT, settings.BACKROUND_HEIGHT))
-        self.playing = True
-        self.paused = False
-        self.game_started = False
-        self.clock = pygame.time.Clock()
-        self.play_button = None
-        self.pause_button = None
-        self.quit_pause = None
+        self.state = "menu"
         self.main_menu()
-        self.pause_flag = False
-        self.pause_game_button()
-        if self.pause_button is not None:
-            self.pause_button.hide()
-        self.state = "main_menu"
+        self.pause_buttons = []
+        self.menu_button = None
+        self.pause_menu_visible = False
+       
         self.menu_button = None
         pygame.mixer.init()
         pygame.mixer.music.load("plant-defenders/music/menu_music.mp3")
         pygame.mixer.music.play(-1)
 
-
     def main_menu(self):
-        self.play_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(800, 500, 200, 40),text="play game", manager=self.manager, object_id="#play_button")
+        self.play_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(120,300,200,40), text="Play game", manager=self.manager, object_id="#play_button")
+        self.quit_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(120,400,200,40), text="Quit game", manager=self.manager, object_id="#quit_button")
 
-    def pause_game_button(self):
-        if self.pause_button is None:
-            self.pause_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(1000, 10, 100, 40),text="pause game", manager=self.manager, object_id="#pause_button")
-    def quit_pause_game_button(self):
-        if not self.state == "paused":
-            self.quit_pause = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(800, 400, 200, 40),text="quit pause", manager=self.manager, object_id="#quit_pause")
-            self.quit_pause.hide()
+    def hide_main_menu_buttons(self):
+        self.play_button.hide()
+        self.quit_button.hide()
 
-            
-    
+    def create_game_menu_button(self):
+        if self.menu_button is None:
+            self.menu_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(120, 500, 200, 40), text="Game menu", manager=self.manager, object_id="#menu_button")
+
+    def show_game_menu_button(self):
+        if self.menu_button:
+            self.menu_button.show()
+
+    def hide_game_menu_button(self):
+        if self.menu_button:
+            self.menu_button.hide()
+
+    def create_pause_buttons(self):
+        if not self.pause_buttons:
+            resume_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(120, 300, 200, 40), text="Resume", manager=self.manager, object_id="#resume_button")
+            quit_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(120, 400, 200, 40), text="Quit", manager=self.manager, object_id="#quit_button")
+            self.pause_buttons = [resume_button, quit_button]
+            self.hide_pause_buttons()
+
+    def show_pause_buttons(self):
+        for btn in self.pause_buttons:
+            btn.show()
+
+    def hide_pause_buttons(self):
+        for btn in self.pause_buttons:
+            btn.hide()
 
     def handle_button_events(self):
         for event in pygame.event.get():
@@ -103,44 +128,50 @@ class Plant_defense:
             self.manager.process_events(event)
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == self.play_button:
-                    self.game_started = True
-                    self.paused = True
-                    self.play_button.hide()
                     self.state = "playing"
-                if event.ui_element == self.pause_button:
-                        self.state = "paused"
-                if event.ui_element == self.quit_pause:
+                    self.hide_main_menu_buttons()
+                    self.create_game_menu_button()
+                    self.show_game_menu_button()
+                    self.create_pause_buttons()
+                elif event.ui_element == self.quit_button:
+                    sys.exit()
+
+                if event.ui_element == self.menu_button:
+                    self.state = "paused"
+                    self.show_pause_buttons()
+                    self.hide_game_menu_button()
+                    
+
+                if event.ui_element == self.pause_buttons[0]:
                     self.state = "playing"
+                    self.hide_pause_buttons()
+                    self.show_game_menu_button()
+                elif event.ui_element == self.pause_buttons[1]:
+                    sys.exit()
                 
-        
-
     def run_game(self):
+        clock = pygame.time.Clock()
+        self.playing = True
         while self.playing:
-            time_delta = self.clock.tick(60) / 1000.0
-            pressed_key = pygame.key.get_pressed()
+            dt = clock.tick(60) / 1000.0
+            self.screen.fill((0, 0, 0))
             self.handle_button_events()
-            self.screen.fill((10, 20, 20))
-            self.manager.update(time_delta)
-
-            
-            if not self.game_started:
+            self.manager.update(dt)
+            if self.state == "menu":
+                self.screen.fill((135,206,235))
                 self.manager.draw_ui(self.screen)
-                pygame.display.flip()
-                continue
-            if self.state == "playing":
-                self.enemy_offset = randint(-50,50)
-                if self.pause_button is None:
-                    self.pause_game_button()
-                else:
-                    self.pause_button.show()
 
+            elif self.state == "playing":
+                self.enemy_offset = randint(-50, 50)
                 self.screen.blit(self.game_backround,(0,0))
                 self.screen.blit(self.score_counter,(5,5))
-                self.screen.blit(self.energy.render(f"energy:{self.ammo}", True, (0, 0, 0)), (12, 25))
-                    
+                self.screen.blit(self.energy.render(f"Energy: {self.ammo}", True, (0, 0, 0)), (12, 25))
                 if time.time() - self.time_cooldown >= 1:
                     self.ammo += self.energy_inc
                     self.time_cooldown = time.time()
+                pressed_key = pygame.key.get_pressed()
+
+
                 "plant call"
                 #summons the plants
                 if pressed_key[pygame.K_1] and len(self.sunflowers) == 0 and len(self.walnuts) == 0 and len(self.peas) < 2:
@@ -259,12 +290,15 @@ class Plant_defense:
                 self.bullet_group.draw(self.screen)
                 self.enemy_group.draw(self.screen)
                 self.enemy_group.update()
+                self.manager.draw_ui(self.screen)
 
-            
-            # draw GUI elements on top of game rendering
-            self.manager.draw_ui(self.screen)
+            elif self.state == "paused":
+                self.screen.blit(self.game_backround,(0,0))
+                s = pygame.Surface((settings.BACKROUND_LENGHT, settings.BACKROUND_HEIGHT), pygame.SRCALPHA)
+                s.fill((0, 0, 0, 128))
+                self.screen.blit(s, (0, 0))
+                self.manager.draw_ui(self.screen)
             pygame.display.flip()
-
 if __name__ == '__main__':
     pd = Plant_defense()
     pd.run_game()
