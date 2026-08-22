@@ -86,8 +86,8 @@ class Plant_defense:
         pygame.mixer.music.play(-1)
 
     def main_menu(self):
-        self.play_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(120,300,200,40), text="Play game", manager=self.manager, object_id="#play_button")
-        self.quit_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(120,400,200,40), text="Quit game", manager=self.manager, object_id="#quit_button")
+        self.play_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(750,500,200,40), text="Play game", manager=self.manager, object_id="#play_button")
+        self.quit_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(750,600,200,40), text="Quit game", manager=self.manager, object_id="#quit_button")
 
     def hide_main_menu_buttons(self):
         self.play_button.hide()
@@ -95,7 +95,7 @@ class Plant_defense:
 
     def create_game_menu_button(self):
         if self.menu_button is None:
-            self.menu_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(120, 500, 200, 40), text="Game menu", manager=self.manager, object_id="#menu_button")
+            self.menu_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(1500, 50, 200, 40), text="Game menu", manager=self.manager, object_id="#menu_button")
 
     def show_game_menu_button(self):
         if self.menu_button:
@@ -107,8 +107,8 @@ class Plant_defense:
 
     def create_pause_buttons(self):
         if not self.pause_buttons:
-            resume_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(120, 300, 200, 40), text="Resume", manager=self.manager, object_id="#resume_button")
-            quit_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(120, 400, 200, 40), text="Quit", manager=self.manager, object_id="#quit_button")
+            resume_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(1500, 300, 200, 40), text="Resume", manager=self.manager, object_id="#resume_button")
+            quit_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(1500, 400, 200, 40), text="Quit", manager=self.manager, object_id="#quit_button")
             self.pause_buttons = [resume_button, quit_button]
             self.hide_pause_buttons()
 
@@ -158,7 +158,7 @@ class Plant_defense:
             self.handle_button_events()
             self.manager.update(dt)
             if self.state == "menu":
-                self.screen.fill((135,206,235))
+                self.screen.fill((100, 150, 100))
                 self.manager.draw_ui(self.screen)
 
             elif self.state == "playing":
