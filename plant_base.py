@@ -79,7 +79,7 @@ class Sunflower(pygame.sprite.Sprite):
                 self.rect.x = settings.X_POS5
 
     def fix_position(self):
-        self.is_placed = True  
+        self.is_placed =True
         putPlant = False    
 
     def blitme(self,):
@@ -110,10 +110,11 @@ class Pea(pygame.sprite.Sprite):
         self.is_placed = True  
         putPlant = False    
 
-    def shoot_bullet(self,current_time):
-        if self.is_placed and current_time - self.last_shot_time > 1:
+    def shoot_bullet(self,current_time,shot_cooldown):
+        if self.is_placed and current_time - self.last_shot_time > shot_cooldown:
             bullet = PeaBullet(self.pd_game,28,self.rect.centerx + 20,self.rect.centery - 40,5)
             self.last_shot_time = current_time
+            shot_cooldown = 1.0
             return bullet
         return None
 

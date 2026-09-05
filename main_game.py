@@ -34,6 +34,7 @@ class Plant_defense:
         pygame.display.set_caption("Plant defense")
         self.game_backround = pygame.transform.scale(pygame.image.load(settings.BACKROUND_IMAGE), (settings.BACKROUND_LENGHT,settings.BACKROUND_HEIGHT))
         self.score_counter = pygame.transform.scale(pygame.image.load(settings.SCORE_COUNTER_PHOTO), (150, 60))
+        self.menu_screen = pygame.transform.scale(pygame.image.load(settings.BACKROUND), (settings.BACKROUND_LENGHT, settings.BACKROUND_HEIGHT))
         self.energy = pygame.font.SysFont("Arial", 20)
         
 
@@ -47,7 +48,7 @@ class Plant_defense:
         self.bullet_group_pea = pygame.sprite.Group()
         self.sprite_group = pygame.sprite.Group()
         self.enemy_group = pygame.sprite.Group()
-        self.bullets = []
+        self.bullets = []   
         self.peas = []
         #self.peas.append(self.pea) 
         self.sunflowers = []
@@ -71,18 +72,27 @@ class Plant_defense:
         self.ammo = 200
         self.time_cooldown = time.time()
         self.enemy_spawn_cooldown = time.time()
-        self.enemy_spawn_wait = randint(1,5)
+        self.game_lost_font = pygame.font.SysFont("Arial", 50)
+        
         self.energy_inc = 5
         self.manager = pygame_gui.UIManager((settings.BACKROUND_LENGHT, settings.BACKROUND_HEIGHT))
         self.state = "menu"
         self.main_menu()
         self.pause_buttons = []
+        self.music_volume = None
         self.menu_button = None
         self.pause_menu_visible = False
+        self.volume_status = "volume: 100%"
+        self.game_score = 0
+        self.lives = 3
+        self.wave_modifier_cooldown = 10
+        
+
        
         self.menu_button = None
         pygame.mixer.init()
         pygame.mixer.music.load("plant-defenders/music/menu_music.mp3")
+        pygame.mixer.music.set_volume(1.0)
         pygame.mixer.music.play(-1)
 
     def main_menu(self):
@@ -120,6 +130,12 @@ class Plant_defense:
         for btn in self.pause_buttons:
             btn.hide()
 
+    def sound_control(self):
+        self.music_volume = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(1500, 10, 200, 40), text=self.volume_status, manager=self.manager, object_id="#sound_control_button")
+
+    def pea_upgrade(self):
+        self.shot_upgrade = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(1500, 100, 200, 40), text="Upgrade Pea", manager=self.manager, object_id="#pea_upgrade_button")
+
     def handle_button_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -133,6 +149,10 @@ class Plant_defense:
                     self.create_game_menu_button()
                     self.show_game_menu_button()
                     self.create_pause_buttons()
+                    self.sound_control()
+                    self.lives = 3
+                    self.game_score = 0
+
                 elif event.ui_element == self.quit_button:
                     sys.exit()
 
@@ -140,6 +160,7 @@ class Plant_defense:
                     self.state = "paused"
                     self.show_pause_buttons()
                     self.hide_game_menu_button()
+
                     
 
                 if event.ui_element == self.pause_buttons[0]:
@@ -148,20 +169,50 @@ class Plant_defense:
                     self.show_game_menu_button()
                 elif event.ui_element == self.pause_buttons[1]:
                     sys.exit()
+
+                if event.ui_element == self.music_volume:
+                    if self.volume_status == "volume: 100%":
+                        self.volume_status = "volume: 75%"
+                        self.music_volume.set_text(self.volume_status)
+                        pygame.mixer.music.set_volume(0.75)
+                    elif self.volume_status == "volume: 75%":
+                        self.volume_status = "volume: 50%"
+                        self.music_volume.set_text(self.volume_status)
+                        pygame.mixer.music.set_volume(0.5)
+                    elif self.volume_status == "volume: 50%":
+                        self.volume_status = "volume: 25%"
+                        self.music_volume.set_text(self.volume_status)
+                        pygame.mixer.music.set_volume(0.25)
+                    elif self.volume_status == "volume: 25%":
+                        self.volume_status = "volume: 0%"
+                        self.music_volume.set_text(self.volume_status)
+                        pygame.mixer.music.set_volume(0.0)
+                    elif self.volume_status == "volume: 0%":
+                        self.volume_status = "volume: 100%"
+                        self.music_volume.set_text(self.volume_status)
+                        pygame.mixer.music.set_volume(1.0)
+
                 
     def run_game(self):
         clock = pygame.time.Clock()
         self.playing = True
+        
         while self.playing:
             dt = clock.tick(60) / 1000.0
             self.screen.fill((0, 0, 0))
             self.handle_button_events()
             self.manager.update(dt)
             if self.state == "menu":
-                self.screen.fill((100, 150, 100))
+                
+                self.screen.blit(self.menu_screen, (0, 0))
                 self.manager.draw_ui(self.screen)
+                if self.lives < 1:
+                    self.screen.blit(self.game_lost_font.render("Game Over", True, (255, 0, 0)), (740, 230))
+                    self.screen.blit(self.game_lost_font.render(f"Score: {self.game_score}", True, (0, 0, 0)), (760, 300))
+                    
 
             elif self.state == "playing":
+                self.enemy_spawn_wait = randint(1,3)
                 self.enemy_offset = randint(-50, 50)
                 self.screen.blit(self.game_backround,(0,0))
                 self.screen.blit(self.score_counter,(5,5))
@@ -170,6 +221,19 @@ class Plant_defense:
                     self.ammo += self.energy_inc
                     self.time_cooldown = time.time()
                 pressed_key = pygame.key.get_pressed()
+                self.screen.blit(self.energy.render(f"Score: {self.game_score}", True, (0, 0, 0)), (12, 45))
+                if time.time() - self.wave_modifier_cooldown >= 1:
+
+                    """for enemy in self.enemy:
+                        self.modify = randint(1,2)
+                        if self.modify ==  1:
+                            self.enemy.lifes += self.enemy.lifes/10
+
+                        elif self.modify == 2:
+                            self.enemy.speed += 0.1
+                            print(self.enemy.speed)
+                            self.wave_modifier_cooldown = time.time()"""
+                    
 
 
                 "plant call"
@@ -187,6 +251,7 @@ class Plant_defense:
                     self.plantMove2 = 1
                     self.sunflower.putPlant = True
                     self.sprite_group.add(self.sunflower)
+                   
 
                 if pressed_key[pygame.K_3] and len(self.sunflowers) == 0 and len(self.peas) == 0 and len(self.walnuts) < 2:
                     self.walnut = Walnut(self,120,150, 80,100)
@@ -195,10 +260,12 @@ class Plant_defense:
                     self.walnut.putPlant = True
                     self.sprite_group.add(self.walnut)
                     
+                    
                 if time.time() - self.enemy_spawn_cooldown >= self.enemy_spawn_wait:
                     spawn = randint(1,3)
                     enemy = Enemy(self, 120,150,1800,settings.Y_POS1+self.enemy_offset if spawn == 1 else settings.Y_POS2+self.enemy_offset if spawn == 2 else settings.Y_POS3+self.enemy_offset)
                     self.enemy_group.add(enemy)
+                    
                     self.enemy_spawn_cooldown = time.time()
 
 
@@ -214,26 +281,26 @@ class Plant_defense:
                             self.sprite_group.remove(pea)
                     self.peas.clear()
                     
-                for sunflower in self.sunflowers:
-                    sprite_check = pygame.sprite.spritecollide(sunflower, self.plantPlaced1 + self.plantPlaced2 + self.plantPlaced3, dokill=False)
-                    if not sunflower.is_placed and len(sprite_check) == 0 and self.ammo >= 50:
-                        sunflower.fix_position()
-                        self.plantPlaced2.append(sunflower)
-                        self.energy_inc += self.sunflower.energy_gen
-                        self.sunflower.energy_gen = 0
-                        self.ammo -= 50
-                    else:
-                        self.sprite_group.remove(sunflower)
+                    for sunflower in self.sunflowers:
+                        sprite_check = pygame.sprite.spritecollide(sunflower, self.plantPlaced1 + self.plantPlaced2 + self.plantPlaced3, dokill=False)
+                        if not sunflower.is_placed and len(sprite_check) == 0 and self.ammo >= 50:
+                            sunflower.fix_position()
+                            self.plantPlaced2.append(sunflower)
+                            self.energy_inc += self.sunflower.energy_gen
+                            self.sunflower.energy_gen = 0
+                            self.ammo -= 50
+                        else:
+                            self.sprite_group.remove(sunflower)
                         self.sunflowers.clear()
 
-                for walnut in self.walnuts:
-                    sprite_check = pygame.sprite.spritecollide(walnut, self.plantPlaced1 + self.plantPlaced2 + self.plantPlaced3, dokill=False)
-                    if not walnut.is_placed and len(sprite_check) == 0 and self.ammo >= 100:
-                        walnut.fix_position()
-                        self.plantPlaced3.append(walnut)
-                        self.ammo -= 100
-                    else:
-                        self.sprite_group.remove(walnut)
+                    for walnut in self.walnuts:
+                        sprite_check = pygame.sprite.spritecollide(walnut, self.plantPlaced1 + self.plantPlaced2 + self.plantPlaced3, dokill=False)
+                        if not walnut.is_placed and len(sprite_check) == 0 and self.ammo >= 100:
+                            walnut.fix_position()
+                            self.plantPlaced3.append(walnut)
+                            self.ammo -= 100
+                        else:
+                            self.sprite_group.remove(walnut)
                         self.walnuts.clear()
 
                 for pea in self.peas:
@@ -269,7 +336,8 @@ class Plant_defense:
                 current_time = time.time()
                 for pea in self.plantPlaced1:
                     pea.blitme()
-                    bullet = pea.shoot_bullet(current_time)
+                    bullet = pea.shoot_bullet(current_time,0.1)
+                    
                     if bullet:
                         self.bullet_group.add(bullet)
 
@@ -279,11 +347,34 @@ class Plant_defense:
                         enemy.lifes -= 25
                         if enemy.lifes <= 0:
                             self.enemy_group.remove(enemy)
-                    
+                            self.game_score += 50
+                            print(self.game_score)
+                    if enemy.rect.x <= 0:
+                        enemy.kill()
+                        self.lives -= 1
+                        print(self.lives)
 
+                if self.lives < 1:
+                    self.state = "menu"
+                    self.ammo = 200
+                    self.energy_inc = 5
+                    self.enemy_group.empty()
+                    self.plantPlaced1.clear()
+                    self.plantPlaced2.clear()
+                    self.plantPlaced3.clear()
+                    self.sprite_group.empty()
+                    self.play_button.show()
+                    self.play_button.set_text("Play again")
+                    self.quit_button.show()
+                    self.hide_game_menu_button()
+                   
 
+                        
                 for enemy in self.enemy_group:
                     if pygame.sprite.spritecollide(enemy, self.plantPlaced1 + self.plantPlaced2 + self.plantPlaced3, dokill=False):
+                        self.pea.lifes -= 10
+                        if self.pea.lifes <= 0:
+                            self.sprite_group.remove(self.pea)
                         enemy.speed = 0
                             
                 self.bullet_group.update()
