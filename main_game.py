@@ -378,16 +378,39 @@ class Plant_defense:
                 for enemy in collide_enemy_placed1:
                     #print(f"Collide enemy placed 1{enemy}")
                     for pea in collide_enemy_placed1[enemy]:
-                        print(f"Collide enemy placed 1{pea}")
-                        print(f"lifes pea: {pea.lifes}")
                         enemy.speed = 0
                         if pea in self.plantPlaced1:
                             pea.lifes -= 1
-                            print(f"pea in plantPlace1: {pea}")
                             if pea.lifes <= 0:
                                 self.plantPlaced1.remove(pea)
                                 for enemy in collide_enemy_placed1:
                                     enemy.speed = self.new_enemy_stats[1]
+
+                collide_enemy_placed2 = pygame.sprite.groupcollide(self.enemy_group, self.plantPlaced2, False, False)
+                for enemy in collide_enemy_placed2:
+                    for pea in collide_enemy_placed2[enemy]:
+                        enemy.speed = 0
+                        if pea in self.plantPlaced2:
+                            pea.lifes -= 1
+                            if pea.lifes <= 0:
+                                self.plantPlaced2.remove(pea)
+                                for enemy in collide_enemy_placed2:
+                                    enemy.speed = self.new_enemy_stats[1]
+                collide_enemy_placed3 = pygame.sprite.groupcollide(self.enemy_group, self.plantPlaced3, False, False)
+                for enemy in collide_enemy_placed3:
+                    for pea in collide_enemy_placed3[enemy]:
+                        enemy.speed = 0
+                        if pea in self.plantPlaced3:
+                            pea.lifes -= 1
+                            if pea.lifes <= 0:
+                                self.plantPlaced3.remove(pea)
+                                for enemy in collide_enemy_placed3:
+                                    enemy.speed = self.new_enemy_stats[1]
+                
+
+
+
+
 
                 self.bullet_group.update()
                 self.bullet_group.draw(self.screen)
