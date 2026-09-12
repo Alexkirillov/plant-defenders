@@ -373,16 +373,21 @@ class Plant_defense:
                     self.hide_game_menu_button()
                     self.bullet_group.empty()
                    
-
+                """create a group that cycles through enemies and peas and checks in the enemy is touching the pea and if it is then it will remove the pea from the group"""
                 collide_enemy_placed1 = pygame.sprite.groupcollide(self.enemy_group, self.plantPlaced1, False, False)
                 for enemy in collide_enemy_placed1:
+                    #print(f"Collide enemy placed 1{enemy}")
                     for pea in collide_enemy_placed1[enemy]:
                         print(f"Collide enemy placed 1{pea}")
                         print(f"lifes pea: {pea.lifes}")
-                        pea.lifes -= 10
                         enemy.speed = 0
-                        if pea.lifes <= 0:
-                            self.sprite_group.remove(pea)
+                        if pea in self.plantPlaced1:
+                            pea.lifes -= 1
+                            print(f"pea in plantPlace1: {pea}")
+                            if pea.lifes <= 0:
+                                self.plantPlaced1.remove(pea)
+                                for enemy in collide_enemy_placed1:
+                                    enemy.speed = self.new_enemy_stats[1]
 
                 self.bullet_group.update()
                 self.bullet_group.draw(self.screen)
