@@ -60,6 +60,8 @@ class Plant_defense:
         self.plantMove1 = 0
         self.plantPlace1 = True
         self.plantPlaced1 = []
+        self.new_enemy_stats = [0,0]
+
 
         self.plantMove2 = 0
         self.plantPlace2 = True
@@ -222,17 +224,18 @@ class Plant_defense:
                     self.time_cooldown = time.time()
                 pressed_key = pygame.key.get_pressed()
                 self.screen.blit(self.energy.render(f"Score: {self.game_score}", True, (0, 0, 0)), (12, 45))
-                if time.time() - self.wave_modifier_cooldown >= 1:
 
-                    """for enemy in self.enemy:
+                if time.time() - self.wave_modifier_cooldown >= 10:
+                    for enemy in self.enemy_group:
                         self.modify = randint(1,2)
                         if self.modify ==  1:
-                            self.enemy.lifes += self.enemy.lifes/10
+                            self.new_enemy_stats[0] += self.enemy.lifes/10
+                            
 
                         elif self.modify == 2:
-                            self.enemy.speed += 0.1
-                            print(self.enemy.speed)
-                            self.wave_modifier_cooldown = time.time()"""
+                            self.new_enemy_stats[1] += 0.1
+                            
+                    self.wave_modifier_cooldown = time.time()
                     
 
 
@@ -264,7 +267,11 @@ class Plant_defense:
                 if time.time() - self.enemy_spawn_cooldown >= self.enemy_spawn_wait:
                     spawn = randint(1,3)
                     enemy = Enemy(self, 120,150,1800,settings.Y_POS1+self.enemy_offset if spawn == 1 else settings.Y_POS2+self.enemy_offset if spawn == 2 else settings.Y_POS3+self.enemy_offset)
+                    enemy.lifes = self.new_enemy_stats[0] if self.new_enemy_stats else enemy.lifes
+                    enemy.speed = self.new_enemy_stats[1] if self.new_enemy_stats else enemy.speed
                     self.enemy_group.add(enemy)
+
+                    
                     
                     self.enemy_spawn_cooldown = time.time()
 
@@ -336,7 +343,7 @@ class Plant_defense:
                 current_time = time.time()
                 for pea in self.plantPlaced1:
                     pea.blitme()
-                    bullet = pea.shoot_bullet(current_time,0.1)
+                    bullet = pea.shoot_bullet(current_time,1)
                     
                     if bullet:
                         self.bullet_group.add(bullet)
@@ -348,12 +355,9 @@ class Plant_defense:
                         if enemy.lifes <= 0:
                             self.enemy_group.remove(enemy)
                             self.game_score += 50
-                            print(self.game_score)
                     if enemy.rect.x <= 0:
                         enemy.kill()
                         self.lives -= 1
-                        print(self.lives)
-
                 if self.lives < 1:
                     self.state = "menu"
                     self.ammo = 200
@@ -367,16 +371,19 @@ class Plant_defense:
                     self.play_button.set_text("Play again")
                     self.quit_button.show()
                     self.hide_game_menu_button()
+                    self.bullet_group.empty()
                    
 
-                        
-                for enemy in self.enemy_group:
-                    if pygame.sprite.spritecollide(enemy, self.plantPlaced1 + self.plantPlaced2 + self.plantPlaced3, dokill=False):
-                        self.pea.lifes -= 10
-                        if self.pea.lifes <= 0:
-                            self.sprite_group.remove(self.pea)
+                collide_enemy_placed1 = pygame.sprite.groupcollide(self.enemy_group, self.plantPlaced1, False, False)
+                for enemy in collide_enemy_placed1:
+                    for pea in collide_enemy_placed1[enemy]:
+                        print(f"Collide enemy placed 1{pea}")
+                        print(f"lifes pea: {pea.lifes}")
+                        pea.lifes -= 10
                         enemy.speed = 0
-                            
+                        if pea.lifes <= 0:
+                            self.sprite_group.remove(pea)
+
                 self.bullet_group.update()
                 self.bullet_group.draw(self.screen)
                 self.enemy_group.draw(self.screen)

@@ -142,7 +142,7 @@ class PeaBullet(pygame.sprite.Sprite):
     def __init__(self, pd_game,bullet_size,bullet_postionx, bullet_positiony,bullet_speed):
         super().__init__()
         self.screen = pd_game.screen
-        self.image = pygame.transform.scale(pygame.image.load(settings.BULLET_PHOTO) , (bullet_size,bullet_size))
+        self.image = pygame.transform.scale(pygame.image.load(settings.BULLET_PHOTO) , (bullet_size, bullet_size))
         self.rect = self.image.get_rect()
         self.rect.x = bullet_postionx
         self.rect.y = bullet_positiony
