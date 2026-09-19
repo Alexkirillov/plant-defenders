@@ -93,7 +93,7 @@ class Plant_defense:
        
         self.menu_button = None
         pygame.mixer.init()
-        pygame.mixer.music.load("plant-defenders/music/menu_music.mp3")
+        pygame.mixer.music.load("music/menu_music.mp3")
         pygame.mixer.music.set_volume(1.0)
         pygame.mixer.music.play(-1)
 
