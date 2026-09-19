@@ -8,7 +8,7 @@ This game is a remake of the game called plants vs zombies. In it you use multip
 There are multiple different rules and controls to the game.
 ##### Pick what plant you want
 You press 1,2,3 to pick what plant you want to put down and they cost different amount of energy
-1. 1-Pea shooter | 150 energy
-2. 2-Sunflower | 50 energy
-3. 3-Wallnut | 100 energy
+1. -Pea shooter | 150 energy
+2. -Sunflower | 50 energy
+3. -Wallnut | 100 energy
 
